@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload a File</title>
+</head>
+<body>
+    <h1>Upload a File</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label>Select file:</label>
+        <input type="file" name="file" required><br><br>
+        <label>
+            <input type="checkbox" name="encrypt">
+            Encrypt this file
+        </label><br><br>
+        <button type="submit">Upload</button>
+    </form>
+    <p><a href="/files"> View Uploaded Files</a></p>
+</body>
+</html>

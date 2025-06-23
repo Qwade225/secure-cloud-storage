@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stored Files</title>
+</head>
+<body>
+    <h1>Uploaded Files</h1>
+
+    <h2>Plain Files</h2>
+    {% if plain_files %}
+        <ul>
+            {% for file in plain_files %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No plain files uploaded yet.</p>
+    {% endif %}
+
+    <h2>Encrypted Files</h2>
+    {% if encrypted_files %}
+        <ul>
+            {% for file in encrypted_files %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No encrypted files uploaded yet.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">⬅ Back to Upload</a>
+</body>
+</html>
