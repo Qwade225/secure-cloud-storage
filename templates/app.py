@@ -1,42 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import URLSafeTimedSerializer
 from cryptography.fernet import Fernet
-from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_super_secret_key'  # Replace this in production
+app.secret_key = 'your_super_secret_key'
 
-# Token generator for password reset
-serializer = URLSafeTimedSerializer(app.secret_key)
-
-# Set up SQLite database
+# Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
-# File upload folders
+# Upload folder
 app.config['UPLOAD_FOLDER_PLAIN'] = 'plain_files'
 app.config['UPLOAD_FOLDER_ENCRYPTED'] = 'encrypted_files'
 
-# ------------------ MODELS ------------------
-
+# User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
-class File(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(200), nullable=False)
-    encrypted = db.Column(db.Boolean, default=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-# ------------------ ENCRYPTION ------------------
-
+# Encryption key
 KEY_FILE = 'filekey.key'
 if os.path.exists(KEY_FILE):
     with open(KEY_FILE, 'rb') as f:
@@ -48,13 +35,9 @@ else:
 
 fernet = Fernet(key)
 
-# ------------------ TABLE INIT ------------------
-
 @app.before_request
 def create_tables():
     db.create_all()
-
-# ------------------ ROUTES ------------------
 
 @app.route('/')
 def index():
@@ -68,6 +51,10 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            return render_template('register.html', error='Passwords do not match.')
 
         if User.query.filter_by(username=username).first():
             return render_template('register.html', error='Username already exists.')
@@ -79,7 +66,6 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
-
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,7 +96,6 @@ def upload():
     if uploaded_file:
         filename = uploaded_file.filename
         file_data = uploaded_file.read()
-        user = User.query.filter_by(username=session['user']).first()
 
         if encrypt:
             encrypted_data = fernet.encrypt(file_data)
@@ -122,11 +107,6 @@ def upload():
             with open(save_path, 'wb') as f:
                 f.write(file_data)
 
-        # Save to DB
-        new_file = File(filename=filename, encrypted=encrypt, user_id=user.id)
-        db.session.add(new_file)
-        db.session.commit()
-
     return redirect(url_for('index'))
 
 @app.route('/files')
@@ -134,39 +114,38 @@ def view_files():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    user = User.query.filter_by(username=session['user']).first()
-    files = File.query.filter_by(user_id=user.id).all()
-    return render_template('files.html', files=files)
+    plain_files = os.listdir(app.config['UPLOAD_FOLDER_PLAIN'])
+    encrypted_files = os.listdir(app.config['UPLOAD_FOLDER_ENCRYPTED'])
+    return render_template('files.html', plain_files=plain_files, encrypted_files=encrypted_files)
 
-# ------------------ PASSWORD RESET ------------------
-
-@app.route('/forgot-password', methods=['GET', 'POST'])
+@app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
         user = User.query.filter_by(email=email).first()
         if user:
-            token = serializer.dumps(email, salt='email-confirm')
-            reset_url = url_for('reset_password', token=token, _external=True)
-            print(f"[DEBUG] Password reset link: {reset_url}")
-        return render_template('forgot_password.html', message='Check your email for a reset link.')
+            return redirect(url_for('reset_password', username=user.username))
+        else:
+            return render_template('forgot_password.html', message="Email not found")
     return render_template('forgot_password.html')
 
-@app.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    try:
-        email = serializer.loads(token, salt='email-confirm', max_age=3600)
-    except:
-        return "The reset link is invalid or has expired."
-
-    if request.method == 'POST':
-        new_password = generate_password_hash(request.form['password'])
-        user = User.query.filter_by(email=email).first()
-        user.password = new_password
-        db.session.commit()
+@app.route('/reset_password/<username>', methods=['GET', 'POST'])
+def reset_password(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
         return redirect(url_for('login'))
 
-    return render_template('reset_password.html')
+    if request.method == 'POST':
+        password = request.form['password']
+        confirm = request.form['confirm_password']
+        if password != confirm:
+            return render_template('reset_password.html', username=username, message="Passwords do not match.")
+        user.password = generate_password_hash(password)
+        db.session.commit()
+        flash("Password successfully reset.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', username=username)
 
 if __name__ == '__main__':
     with app.app_context():

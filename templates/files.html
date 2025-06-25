@@ -1,34 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stored Files</title>
+    <title>Your Files</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f9f9f9;
+            padding: 40px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px;
+            background: #fff;
+            margin: 5px auto;
+            width: 300px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        .nav {
+            margin-top: 30px;
+        }
+        .nav a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Uploaded Files</h1>
+    <h1>Your Uploaded Files</h1>
 
     <h2>Plain Files</h2>
     {% if plain_files %}
-        <ul>
-            {% for file in plain_files %}
-                <li>{{ file }}</li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {% for file in plain_files %}
+            <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
     {% else %}
         <p>No plain files uploaded yet.</p>
     {% endif %}
 
     <h2>Encrypted Files</h2>
     {% if encrypted_files %}
-        <ul>
-            {% for file in encrypted_files %}
-                <li>{{ file }}</li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {% for file in encrypted_files %}
+            <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
     {% else %}
         <p>No encrypted files uploaded yet.</p>
     {% endif %}
 
-    <br>
-    <a href="/">⬅ Back to Upload</a>
+    <div class="nav">
+        <a href="/">← Back to Dashboard</a>
+    </div>
 </body>
 </html>
