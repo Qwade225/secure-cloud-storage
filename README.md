@@ -1,25 +1,20 @@
-# Cloud Project – Encrypted File Storage
+# Secure Cloud Storage App
 
-This project is a Flask-based cloud file storage system with built-in AES encryption. It allows users to securely upload, store, and retrieve files via a web interface.
+A Flask-based secure file storage system with built-in AES encryption.  
+Users can securely upload, download, and manage encrypted files via a web interface.
 
 ## Features
-
 - Flask backend
 - AES file encryption and decryption
 - File key management
 - Upload/download functionality
 - User session handling
+- Admin controls and role-based access
+- Password reset and brute force protection
 
 ## Setup
 
-1. **Clone the repository**  
-   ```bash
-   git clone https://github.com/Qwade225/secure-cloud-storage.git
-   cd secure-cloud-storage
-
-python3 -m venv venv
-source venv/bin/activate
-
-pip install -r requirements.txt
-
-flask run
+1. **Clone the repository**
+```bash
+git clone https://github.com/Qwade225/secure_cloud_project.git
+cd secure_cloud_project
