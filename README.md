@@ -12,5 +12,14 @@ This project is a Flask-based cloud file storage system with built-in AES encryp
 
 ## Setup
 
-1. Create and activate a virtual environment:
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/Qwade225/secure-cloud-storage.git
+   cd secure-cloud-storage
 
+python3 -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+flask run
