@@ -1,22 +1,16 @@
-# Secure Cloud Storage (Python Flask Application)
+# Cloud Project – Encrypted File Storage
 
-This project is a secure, lightweight cloud file storage system built using Python and Flask. It allows authenticated users to upload files with optional encryption, view uploaded files, and manage file access securely through a simple web interface.
+This project is a Flask-based cloud file storage system with built-in AES encryption. It allows users to securely upload, store, and retrieve files via a web interface.
 
 ## Features
 
-- User login with session-based authentication
-- Upload system supporting both plain and encrypted files
-- File viewer that lists uploaded files by type
-- Fernet-based encryption using Python's cryptography module
-- Organized and secure file storage
+- Flask backend
+- AES file encryption and decryption
+- File key management
+- Upload/download functionality
+- User session handling
 
-## Technologies Used
+## Setup
 
-- Python 3.x
-- Flask (Web Framework)
-- Cryptography (Fernet Encryption)
-- HTML (Jinja2 Templating)
+1. Create and activate a virtual environment:
 
-## Setup Instructions
-
-1. Clone the repository:
